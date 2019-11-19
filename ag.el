@@ -193,7 +193,24 @@ different window, according to `ag-reuse-window'."
   (set (make-local-variable 'next-error-function) #'ag/next-error-function)
   (set (make-local-variable 'compilation-finish-functions)
        #'ag/run-finished-hook)
+  (set (make-local-variable 'imenu-prev-index-position-function)
+       #'ag/imenu-prev-index-position-function)
+  (set (make-local-variable 'imenu-extract-index-name-function)
+       #'ag/imenu-extract-index-name-function)
   (add-hook 'compilation-filter-hook 'ag-filter nil t))
+
+(defun ag/imenu-prev-index-position-function ()
+  "Move point to previous group in ag buffer.
+This function is used as a value for
+`imenu-prev-index-position-function'."
+  (re-search-backward "^File: " nil t))
+
+(defun ag/imenu-extract-index-name-function ()
+  "Return imenu name for line at point.
+This function is used as a value for
+`imenu-extract-index-name-function'."
+  (buffer-substring-no-properties (+ (line-beginning-position) (length "File: "))
+                                  (line-end-position)))
 
 (define-key ag-mode-map (kbd "p") #'compilation-previous-error)
 (define-key ag-mode-map (kbd "n") #'compilation-next-error)
